@@ -2,6 +2,8 @@
 
 `generate_ontologies.py` creates OWL 2 DL ontologies for decks with configurable suits and ranks. Each generated ontology contains the relevant classes, properties, and deck individuals in Turtle syntax.
 
+`generate_ontologies_ontologies.py` creates a specific test-suite of OWL 2 DL ontologies using the aforementioned script. Suit names beyond the usual may or may not be inspired by Pokémon.
+
 ## Usage
 
 ```bash

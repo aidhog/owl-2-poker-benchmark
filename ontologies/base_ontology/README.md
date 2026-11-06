@@ -6,8 +6,10 @@ The principal classes are `Card`, `Suit`, `Rank`, and `Hand`. The ontology defin
 
 The ontology uses the namespace `http://www.poker-ontology.org/poker#` (which is artificial: it does not dereference; if anyone wants to register the domain to make it dereference, they are welcome).
 
-We also provide two variants, based on preliminary experiment that indicate that two pair is complex to classify:
+We also provide two variants, based on preliminary experiments that indicate that two pair is complex to classify:
 
 - `base_poker_ontology_fullhouse.ttl` provides an alternative definition independent of two-pair, based on cardinalities of individual ranks (in a full house, each rank appears 0, 2 or 3 times).
 
-- `base_poker_ontology_haspair.ttl` provides a simplfied definition, in which instances specify the ranks of the pairs it contains via `poker:handHasPair`. Thus the definition of two pair simplifies to having two unique ranks as values of this property. Full house is defined as the intersection of two pair and three-of-a-kind.
+- `base_poker_ontology_haspair.ttl` provides a simplified definition, in which instances specify the ranks of the pairs it contains via `poker:handHasPair`. Thus the definition of two pair simplifies to having (at least)* two unique ranks as values of this property. Full house is defined as the intersection of two pair and three-of-a-kind.
+
+* The "at least" only matters if hand size is extended in future.

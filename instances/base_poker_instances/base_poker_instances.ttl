@@ -1,0 +1,264 @@
+# =============================================================================
+# Texas Hold'em poker hand instances
+# =============================================================================
+
+@prefix high_card: <http://www.poker-ontology.org/instances/high_card#> .
+@prefix pair: <http://www.poker-ontology.org/instances/pair#> .
+@prefix two_pair: <http://www.poker-ontology.org/instances/two_pair#> .
+@prefix three_of_a_kind: <http://www.poker-ontology.org/instances/three_of_a_kind#> .
+@prefix straight: <http://www.poker-ontology.org/instances/straight#> .
+@prefix flush: <http://www.poker-ontology.org/instances/flush#> .
+@prefix full_house: <http://www.poker-ontology.org/instances/full_house#> .
+@prefix four_of_a_kind: <http://www.poker-ontology.org/instances/poker#> .
+@prefix straight_flush: <http://www.poker-ontology.org/instances/straight_flush#> .
+@prefix royal_flush: <http://www.poker-ontology.org/instances/royal_flush#> .
+@prefix poker: <http://www.poker-ontology.org/poker#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<http://www.poker-ontology.org/instances/todas>
+    a owl:Ontology ;
+    owl:imports <http://www.poker-ontology.org/poker> ;
+    rdfs:label "Texas Hold'em poker hand instances"@en ;
+    rdfs:comment "Unified ABox containing 40 test hands, four for each of the ten Texas Hold'em poker hand categories."@en .
+
+
+# =============================================================================
+# 1. High Card
+# =============================================================================
+
+high_card:Hand1 a poker:Hand ;
+    rdfs:label "Ace-high with Jack Nine Six Four"@en ;
+    poker:containsCard poker:AceOfHearts, poker:JackOfDiamonds, poker:NineOfSpades, poker:SixOfClubs, poker:FourOfDiamonds .
+
+high_card:Hand2 a poker:Hand ;
+    rdfs:label "King-high with Ten Eight Five Three"@en ;
+    poker:containsCard poker:KingOfClubs, poker:TenOfHearts, poker:EightOfDiamonds, poker:FiveOfClubs, poker:ThreeOfHearts .
+
+high_card:Hand3 a poker:Hand ;
+    rdfs:label "Queen-high with Nine Seven Four Two"@en ;
+    poker:containsCard poker:QueenOfHearts, poker:NineOfDiamonds, poker:SevenOfClubs, poker:FourOfHearts, poker:TwoOfSpades .
+
+high_card:Hand4 a poker:Hand ;
+    rdfs:label "Jack-high with Eight Six Four Two"@en ;
+    poker:containsCard poker:JackOfClubs, poker:EightOfHearts, poker:SixOfSpades, poker:FourOfSpades, poker:TwoOfClubs .
+
+# Distinct hand instances
+[] a owl:AllDifferent ;
+    owl:distinctMembers ( high_card:Hand1 high_card:Hand2 high_card:Hand3 high_card:Hand4 ) .
+
+# =============================================================================
+# 2. Pair
+# =============================================================================
+
+pair:Hand5 a poker:Hand ;
+    rdfs:label "Pair of sixes with Ace Queen Jack"@en ;
+    poker:containsCard poker:SixOfHearts, poker:SixOfDiamonds, poker:AceOfSpades, poker:QueenOfSpades, poker:JackOfHearts .
+
+pair:Hand6 a poker:Hand ;
+    rdfs:label "Pair of tens with King Nine Five"@en ;
+    poker:containsCard poker:TenOfSpades, poker:TenOfClubs, poker:KingOfHearts, poker:NineOfClubs, poker:FiveOfSpades .
+
+pair:Hand7 a poker:Hand ;
+    rdfs:label "Pair of eights with Ace Jack Four"@en ;
+    poker:containsCard poker:EightOfSpades, poker:EightOfClubs, poker:AceOfDiamonds, poker:JackOfDiamonds, poker:FourOfDiamonds .
+
+pair:Hand8 a poker:Hand ;
+    rdfs:label "Pair of threes with Queen Seven Two"@en ;
+    poker:containsCard poker:ThreeOfSpades, poker:ThreeOfDiamonds, poker:QueenOfDiamonds, poker:SevenOfSpades, poker:TwoOfHearts .
+
+# Distinct hand instances
+[] a owl:AllDifferent ;
+    owl:distinctMembers ( pair:Hand5 pair:Hand6 pair:Hand7 pair:Hand8 ) .
+
+# =============================================================================
+# 3. Two Pair
+# =============================================================================
+
+two_pair:Hand9 a poker:Hand ;
+    rdfs:label "Two pair of jacks and Fours with King"@en ;
+    poker:containsCard poker:JackOfHearts, poker:JackOfSpades, poker:FourOfClubs, poker:FourOfDiamonds, poker:KingOfSpades .
+
+two_pair:Hand10 a poker:Hand ;
+    rdfs:label "Two pair of sevens and Twos with Ace"@en ;
+    poker:containsCard poker:SevenOfHearts, poker:SevenOfDiamonds, poker:TwoOfHearts, poker:TwoOfDiamonds, poker:AceOfClubs .
+
+two_pair:Hand11 a poker:Hand ;
+    rdfs:label "Two pair of kings and Nines with Jack"@en ;
+    poker:containsCard poker:KingOfDiamonds, poker:KingOfClubs, poker:NineOfHearts, poker:NineOfSpades, poker:JackOfDiamonds .
+
+two_pair:Hand12 a poker:Hand ;
+    rdfs:label "Two pair of aces and Fives with Eight"@en ;
+    poker:containsCard poker:AceOfHearts, poker:AceOfSpades, poker:FiveOfHearts, poker:FiveOfDiamonds, poker:EightOfHearts .
+
+# Distinct hand instances
+[] a owl:AllDifferent ;
+    owl:distinctMembers ( two_pair:Hand9 two_pair:Hand10 two_pair:Hand11 two_pair:Hand12 ) .
+
+# =============================================================================
+# 4. Three of a Kind
+# =============================================================================
+
+three_of_a_kind:Hand13 a poker:Hand ;
+    rdfs:label "Three of a kind of fours with Ace Jack"@en ;
+    poker:containsCard poker:FourOfHearts, poker:FourOfSpades, poker:FourOfClubs, poker:AceOfHearts, poker:JackOfSpades .
+
+three_of_a_kind:Hand14 a poker:Hand ;
+    rdfs:label "Three of a kind of eights with King Six"@en ;
+    poker:containsCard poker:EightOfHearts, poker:EightOfSpades, poker:EightOfDiamonds, poker:KingOfHearts, poker:SixOfClubs .
+
+three_of_a_kind:Hand15 a poker:Hand ;
+    rdfs:label "Three of a kind of jacks with Ace Three"@en ;
+    poker:containsCard poker:JackOfHearts, poker:JackOfSpades, poker:JackOfClubs, poker:AceOfClubs, poker:ThreeOfHearts .
+
+three_of_a_kind:Hand16 a poker:Hand ;
+    rdfs:label "Three of a kind of sevens with Queen Two"@en ;
+    poker:containsCard poker:SevenOfHearts, poker:SevenOfSpades, poker:SevenOfDiamonds, poker:QueenOfClubs, poker:TwoOfHearts .
+
+# Distinct hand instances
+[] a owl:AllDifferent ;
+    owl:distinctMembers ( three_of_a_kind:Hand13 three_of_a_kind:Hand14 three_of_a_kind:Hand15 three_of_a_kind:Hand16 ) .
+
+# =============================================================================
+# 5. Straight
+# =============================================================================
+
+straight:Hand17 a poker:Hand ;
+    rdfs:label "Straight A-2-3-4-5"@en ;
+    poker:containsCard poker:AceOfSpades, poker:TwoOfHearts, poker:ThreeOfDiamonds, poker:FourOfClubs, poker:FiveOfSpades .
+
+straight:Hand18 a poker:Hand ;
+    rdfs:label "Straight 3-4-5-6-7"@en ;
+    poker:containsCard poker:ThreeOfHearts, poker:FourOfDiamonds, poker:FiveOfClubs, poker:SixOfSpades, poker:SevenOfHearts .
+
+straight:Hand19 a poker:Hand ;
+    rdfs:label "Straight 6-7-8-9-10"@en ;
+    poker:containsCard poker:SixOfDiamonds, poker:SevenOfClubs, poker:EightOfSpades, poker:NineOfDiamonds, poker:TenOfHearts .
+
+straight:Hand20 a poker:Hand ;
+    rdfs:label "Straight 8-9-10-J-Q"@en ;
+    poker:containsCard poker:EightOfDiamonds, poker:NineOfClubs, poker:TenOfDiamonds, poker:JackOfDiamonds, poker:QueenOfSpades .
+
+# Distinct hand instances
+[] a owl:AllDifferent ;
+    owl:distinctMembers ( straight:Hand17 straight:Hand18 straight:Hand19 straight:Hand20 ) .
+
+# =============================================================================
+# 6. Flush
+# =============================================================================
+
+flush:Hand21 a poker:Hand ;
+    rdfs:label "Flush with King Nine Seven Four Two of Diamonds"@en ;
+    poker:containsCard poker:KingOfDiamonds, poker:NineOfDiamonds, poker:SevenOfDiamonds, poker:FourOfDiamonds, poker:TwoOfDiamonds .
+
+flush:Hand22 a poker:Hand ;
+    rdfs:label "Flush with Ace Ten Eight Five Three of Clubs"@en ;
+    poker:containsCard poker:AceOfClubs, poker:TenOfClubs, poker:EightOfClubs, poker:FiveOfClubs, poker:ThreeOfClubs .
+
+flush:Hand23 a poker:Hand ;
+    rdfs:label "Flush with Queen Jack Seven Four Two of Spades"@en ;
+    poker:containsCard poker:QueenOfSpades, poker:JackOfSpades, poker:SevenOfSpades, poker:FourOfSpades, poker:TwoOfSpades .
+
+flush:Hand24 a poker:Hand ;
+    rdfs:label "Flush with Ace King Nine Six Four of Hearts"@en ;
+    poker:containsCard poker:AceOfHearts, poker:KingOfHearts, poker:NineOfHearts, poker:SixOfHearts, poker:FourOfHearts .
+
+# Distinct hand instances
+[] a owl:AllDifferent ;
+    owl:distinctMembers ( flush:Hand21 flush:Hand22 flush:Hand23 flush:Hand24 ) .
+
+# =============================================================================
+# 7. Full House
+# =============================================================================
+
+full_house:Hand25 a poker:Hand ;
+    rdfs:label "Full house with three fives and a pair of kings"@en ;
+    poker:containsCard poker:FiveOfHearts, poker:FiveOfSpades, poker:FiveOfDiamonds, poker:KingOfHearts, poker:KingOfSpades .
+
+full_house:Hand26 a poker:Hand ;
+    rdfs:label "Full house with three eights and a pair of jacks"@en ;
+    poker:containsCard poker:EightOfHearts, poker:EightOfSpades, poker:EightOfDiamonds, poker:JackOfHearts, poker:JackOfSpades .
+
+full_house:Hand27 a poker:Hand ;
+    rdfs:label "Full house with three twos and a pair of aces"@en ;
+    poker:containsCard poker:TwoOfHearts, poker:TwoOfSpades, poker:TwoOfDiamonds, poker:AceOfHearts, poker:AceOfSpades .
+
+full_house:Hand28 a poker:Hand ;
+    rdfs:label "Full house with three queens and a pair of sevens"@en ;
+    poker:containsCard poker:QueenOfHearts, poker:QueenOfSpades, poker:QueenOfDiamonds, poker:SevenOfHearts, poker:SevenOfSpades .
+
+# Distinct hand instances
+[] a owl:AllDifferent ;
+    owl:distinctMembers ( full_house:Hand25 full_house:Hand26 full_house:Hand27 full_house:Hand28 ) .
+
+# =============================================================================
+# 8. Four of a Kind
+# =============================================================================
+
+four_of_a_kind:Hand29 a poker:Hand ;
+    rdfs:label "Four of a kind of fives with King of Clubs"@en ;
+    poker:containsCard poker:FiveOfHearts, poker:FiveOfSpades, poker:FiveOfDiamonds, poker:FiveOfClubs, poker:KingOfClubs .
+
+four_of_a_kind:Hand30 a poker:Hand ;
+    rdfs:label "Four of a kind of nines with Ace of Hearts"@en ;
+    poker:containsCard poker:NineOfHearts, poker:NineOfSpades, poker:NineOfDiamonds, poker:NineOfClubs, poker:AceOfHearts .
+
+four_of_a_kind:Hand31 a poker:Hand ;
+    rdfs:label "Four of a kind of queens with Ten of Diamonds"@en ;
+    poker:containsCard poker:QueenOfHearts, poker:QueenOfSpades, poker:QueenOfDiamonds, poker:QueenOfClubs, poker:TenOfDiamonds .
+
+four_of_a_kind:Hand32 a poker:Hand ;
+    rdfs:label "Four of a kind of threes with Ace of Spades"@en ;
+    poker:containsCard poker:ThreeOfHearts, poker:ThreeOfSpades, poker:ThreeOfDiamonds, poker:ThreeOfClubs, poker:AceOfSpades .
+
+# Distinct hand instances
+[] a owl:AllDifferent ;
+    owl:distinctMembers ( four_of_a_kind:Hand29 four_of_a_kind:Hand30 four_of_a_kind:Hand31 four_of_a_kind:Hand32 ) .
+
+# =============================================================================
+# 9. Straight Flush
+# =============================================================================
+
+straight_flush:Hand33 a poker:Hand ;
+    rdfs:label "Straight flush 3-4-5-6-7 of Diamonds"@en ;
+    poker:containsCard poker:ThreeOfDiamonds, poker:FourOfDiamonds, poker:FiveOfDiamonds, poker:SixOfDiamonds, poker:SevenOfDiamonds .
+
+straight_flush:Hand34 a poker:Hand ;
+    rdfs:label "Straight flush 5-6-7-8-9 of Spades"@en ;
+    poker:containsCard poker:FiveOfSpades, poker:SixOfSpades, poker:SevenOfSpades, poker:EightOfSpades, poker:NineOfSpades .
+
+straight_flush:Hand35 a poker:Hand ;
+    rdfs:label "Straight flush 6-7-8-9-10 of Clubs"@en ;
+    poker:containsCard poker:SixOfClubs, poker:SevenOfClubs, poker:EightOfClubs, poker:NineOfClubs, poker:TenOfClubs .
+
+straight_flush:Hand36 a poker:Hand ;
+    rdfs:label "Straight flush 8-9-10-J-Q of Hearts"@en ;
+    poker:containsCard poker:EightOfHearts, poker:NineOfHearts, poker:TenOfHearts, poker:JackOfHearts, poker:QueenOfHearts .
+
+# Distinct hand instances
+[] a owl:AllDifferent ;
+    owl:distinctMembers ( straight_flush:Hand33 straight_flush:Hand34 straight_flush:Hand35 straight_flush:Hand36 ) .
+
+# =============================================================================
+# 10. Royal Flush
+# =============================================================================
+
+royal_flush:Hand37 a poker:Hand ;
+    rdfs:label "Royal flush in Spades"@en ;
+    poker:containsCard poker:TenOfSpades, poker:JackOfSpades, poker:QueenOfSpades, poker:KingOfSpades, poker:AceOfSpades .
+
+royal_flush:Hand38 a poker:Hand ;
+    rdfs:label "Royal flush in Hearts"@en ;
+    poker:containsCard poker:TenOfHearts, poker:JackOfHearts, poker:QueenOfHearts, poker:KingOfHearts, poker:AceOfHearts .
+
+royal_flush:Hand39 a poker:Hand ;
+    rdfs:label "Royal flush in Diamonds"@en ;
+    poker:containsCard poker:TenOfDiamonds, poker:JackOfDiamonds, poker:QueenOfDiamonds, poker:KingOfDiamonds, poker:AceOfDiamonds .
+
+royal_flush:Hand40 a poker:Hand ;
+    rdfs:label "Royal flush in Clubs"@en ;
+    poker:containsCard poker:TenOfClubs, poker:JackOfClubs, poker:QueenOfClubs, poker:KingOfClubs, poker:AceOfClubs .
+
+# Distinct hand instances
+[] a owl:AllDifferent ;
+    owl:distinctMembers ( royal_flush:Hand37 royal_flush:Hand38 royal_flush:Hand39 royal_flush:Hand40 ) .

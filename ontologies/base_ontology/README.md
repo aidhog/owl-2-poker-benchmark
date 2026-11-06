@@ -4,4 +4,4 @@
 
 The principal classes are `Card`, `Suit`, `Rank`, and `Hand`. The ontology defines individual cards, their ranks and suits, and class expressions for poker-hand categories. Enumerations and distinctness axioms constrain the deck, while property restrictions support hand classification.
 
-The ontology uses the namespace `http://www.poker-ontology.org/poker#`. Local names are translated into English in this draft; the namespace IRI is retained.
+The ontology uses the namespace `http://www.poker-ontology.org/poker#`.

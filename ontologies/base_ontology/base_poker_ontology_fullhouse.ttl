@@ -1,0 +1,1108 @@
+# =============================================================================
+# Base Ontology for Texas Hold'em Poker (alternative full house definition)
+#
+# This version is an alternative definition of poker, with two pair combinations
+# fully expanded, but where full house is defined in terms of cardinalities of
+# individual ranks.
+# =============================================================================
+#
+# This ontology models the structure of Texas Hold'em poker in OWL 2 DL.
+# Its domain covers the deck of cards used in the game and the classification
+# of poker hands. Other aspects, such as betting, rounds, and positions,
+# are outside the scope of this ontology.
+# =============================================================================
+
+@prefix poker: <http://www.poker-ontology.org/poker#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+# -----------------------------------------------------------------------------
+# OWL uses the Open World Assumption (OWA): information that has not been asserted
+# is unknown, and is not necessarily false. Without additional restrictions,
+# a reasoner could admit a fifth suit or a fourteenth rank that has yet to be defined.
+#
+# The Suit, Rank, and Card classes are closed using owl:oneOf to specify
+# their possible individuals. The 52 card individuals are also declared
+# AllDifferent so that the reasoner treats them as distinct entities.
+# -----------------------------------------------------------------------------
+
+<http://www.poker-ontology.org/poker>
+    rdf:type owl:Ontology ;
+    rdfs:label "Poker ontology"@en ;
+    rdfs:comment "Ontology written in OWL 2 DL that models Texas Hold'em poker."@en ;
+    owl:versionInfo "2.0.0" .
+
+
+# =============================================================================
+# Suits and Ranks
+# =============================================================================
+
+# Definition of the Suit class.
+# Suit is closed using owl:oneOf to exclude additional suits.
+poker:Suit a owl:Class ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:oneOf ( poker:Spades poker:Hearts poker:Diamonds poker:Clubs )
+    ] ;
+    rdfs:label "Suit"@en ;
+    rdfs:comment "Suit of a card. Closed class: exactly Spades, Hearts, Diamonds, and Clubs."@en .
+
+# Definition of the Rank class.
+# Rank is closed using owl:oneOf to exclude additional ranks.
+poker:Rank a owl:Class ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:oneOf ( poker:Two poker:Three poker:Four poker:Five poker:Six poker:Seven poker:Eight poker:Nine poker:Ten poker:Jack poker:Queen poker:King poker:Ace )
+    ] ;
+    rdfs:label "Rank"@en ;
+    rdfs:comment "Rank of a card. Closed class: exactly Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King, and Ace."@en .
+
+# Definition of the Card class.
+# Each card has exactly one suit and one rank, as ensured by the functional properties defined below.
+poker:Card a owl:Class ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty poker:hasSuit ;
+        owl:someValuesFrom poker:Suit
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty poker:hasRank ;
+        owl:someValuesFrom poker:Rank
+    ] ;
+    rdfs:label "Card"@en ;
+    rdfs:comment "A card from a standard 52-card deck."@en .
+
+
+# Card subclasses by suit. These are used below to classify flushes and
+# straight flushes by requiring all cards to have the same suit.
+poker:CardOfHearts a owl:Class ;
+    rdfs:subClassOf poker:Card ;
+    owl:equivalentClass [
+        a owl:Restriction ;
+        owl:onProperty poker:hasSuit ;
+        owl:hasValue poker:Hearts
+    ] ;
+    rdfs:label "Card of Hearts"@en ;
+    rdfs:comment "A card of hearts from a standard 52-card deck."@en .
+
+poker:CardOfDiamonds a owl:Class ;
+    rdfs:subClassOf poker:Card ;
+    owl:equivalentClass [
+        a owl:Restriction ;
+        owl:onProperty poker:hasSuit ;
+        owl:hasValue poker:Diamonds
+    ] ;
+    rdfs:label "Card of Diamonds"@en ;
+    rdfs:comment "A card of diamonds from a standard 52-card deck."@en .
+
+poker:CardOfSpades a owl:Class ;
+    rdfs:subClassOf poker:Card ;
+    owl:equivalentClass [
+        a owl:Restriction ;
+        owl:onProperty poker:hasSuit ;
+        owl:hasValue poker:Spades
+    ] ;
+    rdfs:label "Card of Spades"@en ;
+    rdfs:comment "A card of spades from a standard 52-card deck."@en .
+
+poker:CardOfClubs a owl:Class ;
+    rdfs:subClassOf poker:Card ;
+    owl:equivalentClass [
+        a owl:Restriction ;
+        owl:onProperty poker:hasSuit ;
+        owl:hasValue poker:Clubs
+    ] ;
+    rdfs:label "Card of Clubs"@en ;
+    rdfs:comment "A card of clubs from a standard 52-card deck."@en .
+
+
+# Card subclasses by rank. These are used below to classify pairs,
+# three of a kind, and four of a kind by requiring a given number of cards of the same rank.
+poker:CardOfTwo a owl:Class ;
+    rdfs:subClassOf poker:Card ;
+    owl:equivalentClass [ a owl:Restriction ; owl:onProperty poker:hasRank ; owl:hasValue poker:Two ] ;
+    rdfs:label "Card of Two"@en .
+
+poker:CardOfThree a owl:Class ;
+    rdfs:subClassOf poker:Card ;
+    owl:equivalentClass [ a owl:Restriction ; owl:onProperty poker:hasRank ; owl:hasValue poker:Three ] ;
+    rdfs:label "Card of Three"@en .
+
+poker:CardOfFour a owl:Class ;
+    rdfs:subClassOf poker:Card ;
+    owl:equivalentClass [ a owl:Restriction ; owl:onProperty poker:hasRank ; owl:hasValue poker:Four ] ;
+    rdfs:label "Card of Four"@en .
+
+poker:CardOfFive a owl:Class ;
+    rdfs:subClassOf poker:Card ;
+    owl:equivalentClass [ a owl:Restriction ; owl:onProperty poker:hasRank ; owl:hasValue poker:Five ] ;
+    rdfs:label "Card of Five"@en .
+
+poker:CardOfSix a owl:Class ;
+    rdfs:subClassOf poker:Card ;
+    owl:equivalentClass [ a owl:Restriction ; owl:onProperty poker:hasRank ; owl:hasValue poker:Six ] ;
+    rdfs:label "Card of Six"@en .
+
+poker:CardOfSeven a owl:Class ;
+    rdfs:subClassOf poker:Card ;
+    owl:equivalentClass [ a owl:Restriction ; owl:onProperty poker:hasRank ; owl:hasValue poker:Seven ] ;
+    rdfs:label "Card of Seven"@en .
+
+poker:CardOfEight a owl:Class ;
+    rdfs:subClassOf poker:Card ;
+    owl:equivalentClass [ a owl:Restriction ; owl:onProperty poker:hasRank ; owl:hasValue poker:Eight ] ;
+    rdfs:label "Card of Eight"@en .
+
+poker:CardOfNine a owl:Class ;
+    rdfs:subClassOf poker:Card ;
+    owl:equivalentClass [ a owl:Restriction ; owl:onProperty poker:hasRank ; owl:hasValue poker:Nine ] ;
+    rdfs:label "Card of Nine"@en .
+
+poker:CardOfTen a owl:Class ;
+    rdfs:subClassOf poker:Card ;
+    owl:equivalentClass [ a owl:Restriction ; owl:onProperty poker:hasRank ; owl:hasValue poker:Ten ] ;
+    rdfs:label "Card of Ten"@en .
+
+poker:CardOfJack a owl:Class ;
+    rdfs:subClassOf poker:Card ;
+    owl:equivalentClass [ a owl:Restriction ; owl:onProperty poker:hasRank ; owl:hasValue poker:Jack ] ;
+    rdfs:label "Card of Jack"@en .
+
+poker:CardOfQueen a owl:Class ;
+    rdfs:subClassOf poker:Card ;
+    owl:equivalentClass [ a owl:Restriction ; owl:onProperty poker:hasRank ; owl:hasValue poker:Queen ] ;
+    rdfs:label "Card of Queen"@en .
+
+poker:CardOfKing a owl:Class ;
+    rdfs:subClassOf poker:Card ;
+    owl:equivalentClass [ a owl:Restriction ; owl:onProperty poker:hasRank ; owl:hasValue poker:King ] ;
+    rdfs:label "Card of King"@en .
+
+poker:CardOfAce a owl:Class ;
+    rdfs:subClassOf poker:Card ;
+    owl:equivalentClass [ a owl:Restriction ; owl:onProperty poker:hasRank ; owl:hasValue poker:Ace ] ;
+    rdfs:label "Card of Ace"@en .
+
+# Explicit disjointness of the Card subclasses.
+# These classes are already mutually disjoint because hasRank is functional
+# and the rank individuals are AllDifferent. Explicit disjointness avoids
+# repeating this inference in branches of classifiers that use owl:unionOf
+# (such as pair, three of a kind, four of a kind, and straight),
+# which becomes relevant as the ontology grows in complexity.
+
+[] a owl:AllDisjointClasses ;
+    owl:members ( poker:CardOfSpades poker:CardOfHearts poker:CardOfDiamonds poker:CardOfClubs ) .
+
+[] a owl:AllDisjointClasses ;
+    owl:members (
+        poker:CardOfTwo poker:CardOfThree poker:CardOfFour poker:CardOfFive
+        poker:CardOfSix poker:CardOfSeven poker:CardOfEight poker:CardOfNine
+        poker:CardOfTen poker:CardOfJack poker:CardOfQueen poker:CardOfKing poker:CardOfAce
+    ) .
+
+
+# =============================================================================
+# Hand Types
+# =============================================================================
+#
+# Hand ranking in Texas Hold'em poker, from lowest to highest:
+#
+#   Hand: The best five-card combination selected from a player's cards and the community cards.
+#   High card: No combination; the highest card determines the winner.
+#   Pair: Two cards of the same rank.
+#   Two pair: Two pairs of different ranks.
+#   Three of a kind: Three cards of the same rank.
+#   Straight: Five cards of consecutive ranks, possibly of different suits.
+#   Flush: Five cards of the same suit, with different ranks.
+#   Full house: Three of a kind and a pair of different ranks.
+#   Four of a kind: Four cards of the same rank.
+#   Straight flush: Five consecutive cards of the same suit.
+#     Royal flush: A straight flush consisting of 10-J-Q-K-A of the same suit.
+#
+# Design decision: the hand types are not declared disjoint in this version.
+# In the game, the categories are mutually exclusive when identifying the best
+# hand. The ontology is intended to evaluate the effectiveness of OWL reasoners
+# on sufficiently complex ontologies within a reasonable time. A more complex
+# version with disjoint hand classes is left for future work.
+# =============================================================================
+
+# Definition of the Hand class.
+poker:Hand a owl:Class ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty poker:containsCard ;
+        owl:maxQualifiedCardinality "5"^^xsd:nonNegativeInteger ;
+        owl:onClass poker:Card
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty poker:containsCard ;
+        owl:minQualifiedCardinality "5"^^xsd:nonNegativeInteger ;
+        owl:onClass poker:Card
+    ] ;
+    rdfs:label "Hand"@en ;
+    rdfs:comment "The best five-card combination selected from the player's cards and the community cards in Texas Hold'em poker."@en .
+
+# Definition of the HighCard class.
+# A hand without a specific combination, where the highest card wins.
+# The definition is deliberately simple: since hand classes are not disjoint,
+# any hand type could technically be classified as HighCard, which suffices here.
+poker:HighCard a owl:Class ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            poker:Hand
+            [
+                a owl:Restriction ;
+                owl:onProperty poker:containsCard ;
+                owl:someValuesFrom poker:Card
+            ]
+        )
+    ] ;
+    rdfs:subClassOf poker:Hand ;
+    rdfs:label "High card"@en ;
+    rdfs:comment "A hand without a combination; the highest card determines the winner."@en .
+
+# Definition of the Pair class.
+# A hand containing two cards of the same rank. owl:unionOf is used over the 13
+# rank subclasses because OWL 2 DL cannot express a shared rank generically.
+poker:Pair a owl:Class ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            poker:Hand
+            [
+                a owl:Class ;
+                owl:unionOf (
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTwo ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfThree ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFour ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFive ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSix ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSeven ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfEight ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfNine ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTen ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfJack ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfQueen ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfKing ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfAce ]
+                )
+            ]
+        )
+    ] ;
+    rdfs:label "Pair"@en ;
+    rdfs:comment "A hand with two cards of the same rank and three additional cards of ranks different from the pair and from each other."@en .
+
+# Definition of the TwoPair class.
+# A hand containing two pairs of different ranks. The 78 possible unordered
+# combinations of two distinct ranks are enumerated explicitly.
+poker:TwoPair a owl:Class ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            poker:Hand
+            [
+                a owl:Class ;
+                owl:unionOf (
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTwo ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfThree ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTwo ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFour ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTwo ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFive ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTwo ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSix ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTwo ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSeven ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTwo ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfEight ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTwo ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfNine ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTwo ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTen ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTwo ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfJack ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTwo ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfQueen ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTwo ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfKing ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTwo ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfAce ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfThree ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFour ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfThree ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFive ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfThree ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSix ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfThree ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSeven ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfThree ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfEight ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfThree ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfNine ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfThree ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTen ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfThree ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfJack ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfThree ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfQueen ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfThree ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfKing ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfThree ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfAce ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFour ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFive ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFour ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSix ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFour ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSeven ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFour ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfEight ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFour ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfNine ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFour ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTen ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFour ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfJack ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFour ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfQueen ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFour ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfKing ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFour ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfAce ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFive ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSix ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFive ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSeven ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFive ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfEight ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFive ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfNine ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFive ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTen ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFive ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfJack ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFive ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfQueen ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFive ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfKing ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFive ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfAce ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSix ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSeven ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSix ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfEight ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSix ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfNine ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSix ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTen ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSix ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfJack ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSix ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfQueen ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSix ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfKing ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSix ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfAce ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSeven ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfEight ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSeven ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfNine ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSeven ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTen ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSeven ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfJack ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSeven ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfQueen ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSeven ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfKing ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSeven ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfAce ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfEight ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfNine ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfEight ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTen ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfEight ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfJack ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfEight ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfQueen ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfEight ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfKing ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfEight ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfAce ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfNine ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTen ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfNine ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfJack ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfNine ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfQueen ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfNine ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfKing ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfNine ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfAce ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTen ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfJack ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTen ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfQueen ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTen ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfKing ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTen ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfAce ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfJack ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfQueen ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfJack ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfKing ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfJack ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfAce ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfQueen ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfKing ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfQueen ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfAce ]
+                    )]
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfKing ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfAce ]
+                    )]
+                )
+            ]
+        )
+    ] ;
+    rdfs:label "Two pair"@en ;
+    rdfs:comment "A hand with two pairs of different ranks, regardless of suit."@en .
+
+# Definition of the ThreeOfAKind class.
+# A hand containing three cards of the same rank. owl:unionOf is used over the 13
+# rank subclasses because OWL 2 DL cannot express a shared rank generically.
+poker:ThreeOfAKind a owl:Class ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            poker:Hand
+            [
+                a owl:Class ;
+                owl:unionOf (
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "3"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTwo ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "3"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfThree ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "3"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFour ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "3"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFive ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "3"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSix ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "3"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSeven ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "3"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfEight ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "3"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfNine ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "3"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTen ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "3"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfJack ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "3"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfQueen ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "3"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfKing ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "3"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfAce ]
+                )
+            ]
+        )
+    ] ;
+    rdfs:label "Three of a kind"@en ;
+    rdfs:comment "A hand with three cards of the same rank and two other cards of different ranks from the three of a kind and from each other."@en .
+
+# Definition of the Straight class.
+# A hand containing five cards of consecutive ranks, possibly of different suits.
+# The ten possible sequences of consecutive ranks are enumerated here.
+# OWL 2 DL requires enumerating these sequences to express consecutive ranks
+# without naming the specific cards in the hand.
+poker:Straight a owl:Class ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            poker:Hand
+            [
+                a owl:Class ;
+                owl:unionOf (
+                    # A-2-3-4-5 
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfAce ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfTwo ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfThree ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfFour ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfFive ]
+                    )]
+                    # 2-3-4-5-6
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfTwo ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfThree ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfFour ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfFive ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfSix ]
+                    )]
+                    # 3-4-5-6-7
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfThree ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfFour ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfFive ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfSix ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfSeven ]
+                    )]
+                    # 4-5-6-7-8
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfFour ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfFive ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfSix ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfSeven ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfEight ]
+                    )]
+                    # 5-6-7-8-9
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfFive ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfSix ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfSeven ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfEight ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfNine ]
+                    )]
+                    # 6-7-8-9-10
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfSix ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfSeven ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfEight ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfNine ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfTen ]
+                    )]
+                    # 7-8-9-10-J
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfSeven ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfEight ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfNine ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfTen ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfJack ]
+                    )]
+                    # 8-9-10-J-Q
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfEight ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfNine ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfTen ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfJack ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfQueen ]
+                    )]
+                    # 9-10-J-Q-K
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfNine ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfTen ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfJack ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfQueen ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfKing ]
+                    )]
+                    # 10-J-Q-K-A 
+                    [ a owl:Class ; owl:intersectionOf (
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfTen ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfJack ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfQueen ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfKing ]
+                        [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfAce ]
+                    )]
+                )
+            ]
+        )
+    ] ;
+    rdfs:label "Straight"@en ;
+    rdfs:comment "A hand with five cards of consecutive ranks, possibly of different suits."@en .
+
+# Definition of the Flush class.
+# A hand containing five cards of the same suit, with different ranks.
+# owl:unionOf is used over the four suit subclasses because OWL 2 DL
+# cannot express a shared suit generically.
+poker:Flush a owl:Class ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            poker:Hand
+            [
+                a owl:Class ;
+                owl:unionOf (
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "5"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfHearts ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "5"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfDiamonds ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "5"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSpades ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "5"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfClubs ]
+                )
+            ]
+        )
+    ] ;
+    rdfs:label "Flush"@en ;
+    rdfs:comment "A hand with five cards of the same suit, whose ranks need not be consecutive."@en .
+
+# Definition of the FullHouse class.
+# A full house has exactly five cards, with each rank occurring either zero,
+# two, or three times. The five-card hand constraint and the disjoint rank
+# classes ensure that one rank occurs twice and another occurs three times.
+poker:FullHouse a owl:Class ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            poker:Hand
+            [ a owl:Class ;
+              owl:unionOf (
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "0"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTwo ]
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTwo ]
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "3"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTwo ]
+              )
+            ]
+            [ a owl:Class ;
+              owl:unionOf (
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "0"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfThree ]
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfThree ]
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "3"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfThree ]
+              )
+            ]
+            [ a owl:Class ;
+              owl:unionOf (
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "0"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFour ]
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFour ]
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "3"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFour ]
+              )
+            ]
+            [ a owl:Class ;
+              owl:unionOf (
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "0"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFive ]
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFive ]
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "3"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFive ]
+              )
+            ]
+            [ a owl:Class ;
+              owl:unionOf (
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "0"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSix ]
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSix ]
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "3"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSix ]
+              )
+            ]
+            [ a owl:Class ;
+              owl:unionOf (
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "0"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSeven ]
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSeven ]
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "3"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSeven ]
+              )
+            ]
+            [ a owl:Class ;
+              owl:unionOf (
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "0"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfEight ]
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfEight ]
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "3"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfEight ]
+              )
+            ]
+            [ a owl:Class ;
+              owl:unionOf (
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "0"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfNine ]
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfNine ]
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "3"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfNine ]
+              )
+            ]
+            [ a owl:Class ;
+              owl:unionOf (
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "0"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTen ]
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTen ]
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "3"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTen ]
+              )
+            ]
+            [ a owl:Class ;
+              owl:unionOf (
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "0"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfJack ]
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfJack ]
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "3"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfJack ]
+              )
+            ]
+            [ a owl:Class ;
+              owl:unionOf (
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "0"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfQueen ]
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfQueen ]
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "3"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfQueen ]
+              )
+            ]
+            [ a owl:Class ;
+              owl:unionOf (
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "0"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfKing ]
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfKing ]
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "3"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfKing ]
+              )
+            ]
+            [ a owl:Class ;
+              owl:unionOf (
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "0"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfAce ]
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfAce ]
+                [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:qualifiedCardinality "3"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfAce ]
+              )
+            ]
+        )
+    ] ;
+    rdfs:label "Full house"@en ;
+    rdfs:comment "A hand with three cards of one rank and two cards of another rank."@en .
+
+# Definition of the FourOfAKind class.
+# A hand containing four cards of the same rank. owl:unionOf is used over the 13
+# rank subclasses because OWL 2 DL cannot express a shared rank generically.
+poker:FourOfAKind a owl:Class ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            poker:Hand
+            [
+                a owl:Class ;
+                owl:unionOf (
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "4"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTwo ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "4"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfThree ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "4"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFour ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "4"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfFive ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "4"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSix ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "4"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfSeven ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "4"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfEight ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "4"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfNine ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "4"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfTen ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "4"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfJack ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "4"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfQueen ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "4"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfKing ]
+                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "4"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOfAce ]
+                )
+            ]
+        )
+    ] ;
+    rdfs:label "Four of a kind"@en ;
+    rdfs:comment "A hand with four cards of the same rank and one additional card."@en .
+
+# Definition of the StraightFlush class.
+# A hand containing five consecutive cards of the same suit. It is defined
+# as the intersection of Straight and Flush, ensuring both properties in one hand.
+poker:StraightFlush a owl:Class ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            poker:Straight
+            poker:Flush
+        )
+    ] ;
+    rdfs:label "Straight flush"@en ;
+    rdfs:comment "A hand with five consecutive cards of the same suit."@en .
+
+# Definition of the RoyalFlush class.
+# A hand containing five consecutive cards of the same suit, 10-J-Q-K-A.
+# It is a special case of a straight flush, defined as the intersection of
+# StraightFlush and the presence of the five highest-ranked cards.
+poker:RoyalFlush a owl:Class ;
+    rdfs:subClassOf poker:StraightFlush ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            poker:StraightFlush
+            [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfTen ]
+            [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfJack ]
+            [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfQueen ]
+            [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfKing ]
+            [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:someValuesFrom poker:CardOfAce ]
+        )
+    ] ;
+    rdfs:label "Royal flush"@en ;
+    rdfs:comment "A hand with the five highest consecutive ranks (10-J-Q-K-A)."@en .
+
+
+# =============================================================================
+# Object Properties
+# =============================================================================
+
+# hasSuit and hasRank are functional properties because a card has
+# one suit and one rank. Together with owl:oneOf for Suit and Rank,
+# this ensures that each card is uniquely characterized in the ontology.
+
+# Definition of the hasSuit property.
+# Associates each card with exactly one suit.
+poker:hasSuit a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:domain poker:Card ;
+    rdfs:range poker:Suit ;
+    rdfs:label "Has suit"@en ;
+    rdfs:comment "Property associating a card with its suit."@en .
+
+# Definition of the hasRank property.
+# Associates each card with exactly one rank.
+poker:hasRank a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:domain poker:Card ;
+    rdfs:range poker:Rank ;
+    rdfs:label "Has rank"@en ;
+    rdfs:comment "Property associating a card with its rank."@en .
+
+# Definition of the containsCard property.
+# Indicates that a hand contains a given card.
+poker:containsCard a owl:ObjectProperty ;
+    rdfs:domain poker:Hand ;
+    rdfs:range poker:Card ;
+    rdfs:label "Contains card"@en ;
+    rdfs:comment "Property relating a hand to each of its cards."@en .
+
+# =============================================================================
+# ABox - Individuals
+# =============================================================================
+#
+# 69 individuals in total: 4 suits, 13 ranks, and 52 cards.
+# =============================================================================
+
+# Suits
+poker:Spades a poker:Suit ; rdfs:label "Spades"@en .
+poker:Hearts a poker:Suit ; rdfs:label "Hearts"@en .
+poker:Diamonds a poker:Suit ; rdfs:label "Diamonds"@en .
+poker:Clubs a poker:Suit ; rdfs:label "Clubs"@en .
+
+# Ranks
+poker:Two a poker:Rank ; rdfs:label "Two"@en .
+poker:Three a poker:Rank ; rdfs:label "Three"@en .
+poker:Four a poker:Rank ; rdfs:label "Four"@en .
+poker:Five a poker:Rank ; rdfs:label "Five"@en .
+poker:Six a poker:Rank ; rdfs:label "Six"@en .
+poker:Seven a poker:Rank ; rdfs:label "Seven"@en .
+poker:Eight a poker:Rank ; rdfs:label "Eight"@en .
+poker:Nine a poker:Rank ; rdfs:label "Nine"@en .
+poker:Ten a poker:Rank ; rdfs:label "Ten"@en .
+poker:Jack a poker:Rank ; rdfs:label "Jack"@en .
+poker:Queen a poker:Rank ; rdfs:label "Queen"@en .
+poker:King a poker:Rank ; rdfs:label "King"@en .
+poker:Ace a poker:Rank ; rdfs:label "Ace"@en .
+
+# Cards of Spades
+poker:TwoOfSpades a poker:Card ; poker:hasSuit poker:Spades ; poker:hasRank poker:Two ; rdfs:label "Two of Spades"@en .
+poker:ThreeOfSpades a poker:Card ; poker:hasSuit poker:Spades ; poker:hasRank poker:Three ; rdfs:label "Three of Spades"@en .
+poker:FourOfSpades a poker:Card ; poker:hasSuit poker:Spades ; poker:hasRank poker:Four ; rdfs:label "Four of Spades"@en .
+poker:FiveOfSpades a poker:Card ; poker:hasSuit poker:Spades ; poker:hasRank poker:Five ; rdfs:label "Five of Spades"@en .
+poker:SixOfSpades a poker:Card ; poker:hasSuit poker:Spades ; poker:hasRank poker:Six ; rdfs:label "Six of Spades"@en .
+poker:SevenOfSpades a poker:Card ; poker:hasSuit poker:Spades ; poker:hasRank poker:Seven ; rdfs:label "Seven of Spades"@en .
+poker:EightOfSpades a poker:Card ; poker:hasSuit poker:Spades ; poker:hasRank poker:Eight ; rdfs:label "Eight of Spades"@en .
+poker:NineOfSpades a poker:Card ; poker:hasSuit poker:Spades ; poker:hasRank poker:Nine ; rdfs:label "Nine of Spades"@en .
+poker:TenOfSpades a poker:Card ; poker:hasSuit poker:Spades ; poker:hasRank poker:Ten ; rdfs:label "Ten of Spades"@en .
+poker:JackOfSpades a poker:Card ; poker:hasSuit poker:Spades ; poker:hasRank poker:Jack ; rdfs:label "Jack of Spades"@en .
+poker:QueenOfSpades a poker:Card ; poker:hasSuit poker:Spades ; poker:hasRank poker:Queen ; rdfs:label "Queen of Spades"@en .
+poker:KingOfSpades a poker:Card ; poker:hasSuit poker:Spades ; poker:hasRank poker:King ; rdfs:label "King of Spades"@en .
+poker:AceOfSpades a poker:Card ; poker:hasSuit poker:Spades ; poker:hasRank poker:Ace ; rdfs:label "Ace of Spades"@en .
+
+# Cards of Hearts
+poker:TwoOfHearts a poker:Card ; poker:hasSuit poker:Hearts ; poker:hasRank poker:Two ; rdfs:label "Two of Hearts"@en .
+poker:ThreeOfHearts a poker:Card ; poker:hasSuit poker:Hearts ; poker:hasRank poker:Three ; rdfs:label "Three of Hearts"@en .
+poker:FourOfHearts a poker:Card ; poker:hasSuit poker:Hearts ; poker:hasRank poker:Four ; rdfs:label "Four of Hearts"@en .
+poker:FiveOfHearts a poker:Card ; poker:hasSuit poker:Hearts ; poker:hasRank poker:Five ; rdfs:label "Five of Hearts"@en .
+poker:SixOfHearts a poker:Card ; poker:hasSuit poker:Hearts ; poker:hasRank poker:Six ; rdfs:label "Six of Hearts"@en .
+poker:SevenOfHearts a poker:Card ; poker:hasSuit poker:Hearts ; poker:hasRank poker:Seven ; rdfs:label "Seven of Hearts"@en .
+poker:EightOfHearts a poker:Card ; poker:hasSuit poker:Hearts ; poker:hasRank poker:Eight ; rdfs:label "Eight of Hearts"@en .
+poker:NineOfHearts a poker:Card ; poker:hasSuit poker:Hearts ; poker:hasRank poker:Nine ; rdfs:label "Nine of Hearts"@en .
+poker:TenOfHearts a poker:Card ; poker:hasSuit poker:Hearts ; poker:hasRank poker:Ten ; rdfs:label "Ten of Hearts"@en .
+poker:JackOfHearts a poker:Card ; poker:hasSuit poker:Hearts ; poker:hasRank poker:Jack ; rdfs:label "Jack of Hearts"@en .
+poker:QueenOfHearts a poker:Card ; poker:hasSuit poker:Hearts ; poker:hasRank poker:Queen ; rdfs:label "Queen of Hearts"@en .
+poker:KingOfHearts a poker:Card ; poker:hasSuit poker:Hearts ; poker:hasRank poker:King ; rdfs:label "King of Hearts"@en .
+poker:AceOfHearts a poker:Card ; poker:hasSuit poker:Hearts ; poker:hasRank poker:Ace ; rdfs:label "Ace of Hearts"@en .
+
+# Cards of Diamonds
+poker:TwoOfDiamonds a poker:Card ; poker:hasSuit poker:Diamonds ; poker:hasRank poker:Two ; rdfs:label "Two of Diamonds"@en .
+poker:ThreeOfDiamonds a poker:Card ; poker:hasSuit poker:Diamonds ; poker:hasRank poker:Three ; rdfs:label "Three of Diamonds"@en .
+poker:FourOfDiamonds a poker:Card ; poker:hasSuit poker:Diamonds ; poker:hasRank poker:Four ; rdfs:label "Four of Diamonds"@en .
+poker:FiveOfDiamonds a poker:Card ; poker:hasSuit poker:Diamonds ; poker:hasRank poker:Five ; rdfs:label "Five of Diamonds"@en .
+poker:SixOfDiamonds a poker:Card ; poker:hasSuit poker:Diamonds ; poker:hasRank poker:Six ; rdfs:label "Six of Diamonds"@en .
+poker:SevenOfDiamonds a poker:Card ; poker:hasSuit poker:Diamonds ; poker:hasRank poker:Seven ; rdfs:label "Seven of Diamonds"@en .
+poker:EightOfDiamonds a poker:Card ; poker:hasSuit poker:Diamonds ; poker:hasRank poker:Eight ; rdfs:label "Eight of Diamonds"@en .
+poker:NineOfDiamonds a poker:Card ; poker:hasSuit poker:Diamonds ; poker:hasRank poker:Nine ; rdfs:label "Nine of Diamonds"@en .
+poker:TenOfDiamonds a poker:Card ; poker:hasSuit poker:Diamonds ; poker:hasRank poker:Ten ; rdfs:label "Ten of Diamonds"@en .
+poker:JackOfDiamonds a poker:Card ; poker:hasSuit poker:Diamonds ; poker:hasRank poker:Jack ; rdfs:label "Jack of Diamonds"@en .
+poker:QueenOfDiamonds a poker:Card ; poker:hasSuit poker:Diamonds ; poker:hasRank poker:Queen ; rdfs:label "Queen of Diamonds"@en .
+poker:KingOfDiamonds a poker:Card ; poker:hasSuit poker:Diamonds ; poker:hasRank poker:King ; rdfs:label "King of Diamonds"@en .
+poker:AceOfDiamonds a poker:Card ; poker:hasSuit poker:Diamonds ; poker:hasRank poker:Ace ; rdfs:label "Ace of Diamonds"@en .
+
+# Cards of Clubs
+poker:TwoOfClubs a poker:Card ; poker:hasSuit poker:Clubs ; poker:hasRank poker:Two ; rdfs:label "Two of Clubs"@en .
+poker:ThreeOfClubs a poker:Card ; poker:hasSuit poker:Clubs ; poker:hasRank poker:Three ; rdfs:label "Three of Clubs"@en .
+poker:FourOfClubs a poker:Card ; poker:hasSuit poker:Clubs ; poker:hasRank poker:Four ; rdfs:label "Four of Clubs"@en .
+poker:FiveOfClubs a poker:Card ; poker:hasSuit poker:Clubs ; poker:hasRank poker:Five ; rdfs:label "Five of Clubs"@en .
+poker:SixOfClubs a poker:Card ; poker:hasSuit poker:Clubs ; poker:hasRank poker:Six ; rdfs:label "Six of Clubs"@en .
+poker:SevenOfClubs a poker:Card ; poker:hasSuit poker:Clubs ; poker:hasRank poker:Seven ; rdfs:label "Seven of Clubs"@en .
+poker:EightOfClubs a poker:Card ; poker:hasSuit poker:Clubs ; poker:hasRank poker:Eight ; rdfs:label "Eight of Clubs"@en .
+poker:NineOfClubs a poker:Card ; poker:hasSuit poker:Clubs ; poker:hasRank poker:Nine ; rdfs:label "Nine of Clubs"@en .
+poker:TenOfClubs a poker:Card ; poker:hasSuit poker:Clubs ; poker:hasRank poker:Ten ; rdfs:label "Ten of Clubs"@en .
+poker:JackOfClubs a poker:Card ; poker:hasSuit poker:Clubs ; poker:hasRank poker:Jack ; rdfs:label "Jack of Clubs"@en .
+poker:QueenOfClubs a poker:Card ; poker:hasSuit poker:Clubs ; poker:hasRank poker:Queen ; rdfs:label "Queen of Clubs"@en .
+poker:KingOfClubs a poker:Card ; poker:hasSuit poker:Clubs ; poker:hasRank poker:King ; rdfs:label "King of Clubs"@en .
+poker:AceOfClubs a poker:Card ; poker:hasSuit poker:Clubs ; poker:hasRank poker:Ace ; rdfs:label "Ace of Clubs"@en .
+
+
+# Distinct individuals
+# AllDifferent is required because OWL 2 DL does not assume distinct individuals
+# for distinct names (the Unique Name Assumption does not apply). Without these
+# declarations, a reasoner could identify TwoOfSpades and ThreeOfHearts as
+# the same card unless their distinction is explicitly established.
+# This applies to suits, ranks, and cards.
+
+# 4 distinct suits.
+[] a owl:AllDifferent ;
+    owl:distinctMembers ( poker:Spades poker:Hearts poker:Diamonds poker:Clubs ) .
+
+# 13 distinct ranks.
+[] a owl:AllDifferent ;
+    owl:distinctMembers ( poker:Two poker:Three poker:Four poker:Five poker:Six
+                          poker:Seven poker:Eight poker:Nine poker:Ten poker:Jack
+                          poker:Queen poker:King poker:Ace ) .
+
+# 52 distinct cards.
+[] a owl:AllDifferent ;
+    owl:distinctMembers (
+        poker:TwoOfSpades poker:ThreeOfSpades poker:FourOfSpades poker:FiveOfSpades
+        poker:SixOfSpades poker:SevenOfSpades poker:EightOfSpades poker:NineOfSpades
+        poker:TenOfSpades poker:JackOfSpades poker:QueenOfSpades poker:KingOfSpades poker:AceOfSpades
+        poker:TwoOfHearts poker:ThreeOfHearts poker:FourOfHearts poker:FiveOfHearts
+        poker:SixOfHearts poker:SevenOfHearts poker:EightOfHearts poker:NineOfHearts
+        poker:TenOfHearts poker:JackOfHearts poker:QueenOfHearts poker:KingOfHearts poker:AceOfHearts
+        poker:TwoOfDiamonds poker:ThreeOfDiamonds poker:FourOfDiamonds poker:FiveOfDiamonds
+        poker:SixOfDiamonds poker:SevenOfDiamonds poker:EightOfDiamonds poker:NineOfDiamonds
+        poker:TenOfDiamonds poker:JackOfDiamonds poker:QueenOfDiamonds poker:KingOfDiamonds poker:AceOfDiamonds
+        poker:TwoOfClubs poker:ThreeOfClubs poker:FourOfClubs poker:FiveOfClubs
+        poker:SixOfClubs poker:SevenOfClubs poker:EightOfClubs poker:NineOfClubs
+        poker:TenOfClubs poker:JackOfClubs poker:QueenOfClubs poker:KingOfClubs poker:AceOfClubs
+    ) .

@@ -1,5 +1,9 @@
 # =============================================================================
-# Base Ontology for Texas Hold'em Poker
+# Base Ontology for Texas Hold'em Poker (simplified hasPair version)
+#
+# This is a simplified version of the poker ontology in which we assume that
+# pairs are explicitly asserted in the ABox via a "handHasPair" property to
+# avoid defining two-pair in terms of a quadratic number of possible ranks.
 # =============================================================================
 #
 # This ontology models the structure of Texas Hold'em poker in OWL 2 DL.

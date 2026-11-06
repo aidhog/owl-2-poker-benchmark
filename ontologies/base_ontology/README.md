@@ -12,4 +12,4 @@ We also provide two variants, based on preliminary experiments that indicate tha
 
 - `base_poker_ontology_haspair.ttl` provides a simplified definition, in which instances specify the ranks of the pairs it contains via `poker:handHasPair`. Thus the definition of two pair simplifies to having (at least)* two unique ranks as values of this property. Full house is defined as the intersection of two pair and three-of-a-kind.
 
-* The "at least" only matters if hand size is extended in future.
+\* The "at least" only matters if hand size is extended in future.

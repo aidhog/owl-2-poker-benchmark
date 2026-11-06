@@ -6,12 +6,11 @@ This repository contains OWL 2 DL ontologies and generators for evaluating reaso
 
 - [`ontologies/base_ontology/`](ontologies/base_ontology/): base ontology for a standard 52-card deck.
 - [`ontology_generator/`](ontology_generator/): Python generator for parameterized deck ontologies.
-- [`instances/`](instances/): Python generators for complete and category-separated hand instances, together with a small base example.
-- [`ontologies/generated_ontologies/`](ontologies/generated_ontologies/): destination for generated ontology variants.
+- [`instances/`](instances/): Python generators for instances of hands that require classification.
 
 ## Requirements
 
-Python 3 is required for the generators. Install any additional dependencies with `pip install -r requirements.txt`. The supplied PowerShell scripts provide batch execution on systems with PowerShell.
+Python 3 is required for the generators. Install any additional dependencies with `pip install -r requirements.txt`.
 
 ## Generate an ontology
 

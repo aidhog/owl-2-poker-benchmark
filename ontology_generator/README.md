@@ -1,0 +1,13 @@
+# Ontology generator
+
+`generate_ontologies.py` creates OWL 2 DL ontologies for decks with configurable suits and ranks. Each generated ontology contains the relevant classes, properties, and deck individuals in Turtle syntax.
+
+## Usage
+
+```bash
+python ontology_generator/generate_ontologies.py
+```
+
+The program prompts for the deck name, suits, and ranks. Its output directory is `ontologies/generated_ontologies/`. The corresponding PowerShell script, `generate_ontologies.ps1`, supports batch generation.
+
+The base ontology in `ontologies/base_ontology/` provides the reference vocabulary and axiomatization. Generated ontologies should be checked for compatibility with the English identifiers used by the base ontology.

@@ -234,13 +234,7 @@ poker:Hand a owl:Class ;
     rdfs:subClassOf [
         a owl:Restriction ;
         owl:onProperty poker:containsCard ;
-        owl:maxQualifiedCardinality "5"^^xsd:nonNegativeInteger ;
-        owl:onClass poker:Card
-    ] ;
-    rdfs:subClassOf [
-        a owl:Restriction ;
-        owl:onProperty poker:containsCard ;
-        owl:minQualifiedCardinality "5"^^xsd:nonNegativeInteger ;
+        owl:qualifiedCardinality "5"^^xsd:nonNegativeInteger ;
         owl:onClass poker:Card
     ] ;
     rdfs:label "Hand"@en ;
@@ -251,20 +245,9 @@ poker:Hand a owl:Class ;
 # The definition is deliberately simple: since hand classes are not disjoint,
 # any hand type could technically be classified as HighCard, which suffices here.
 poker:HighCard a owl:Class ;
-    owl:equivalentClass [
-        a owl:Class ;
-        owl:intersectionOf (
-            poker:Hand
-            [
-                a owl:Restriction ;
-                owl:onProperty poker:containsCard ;
-                owl:someValuesFrom poker:Card
-            ]
-        )
-    ] ;
-    rdfs:subClassOf poker:Hand ;
-    rdfs:label "High card"@en ;
-    rdfs:comment "A hand without a combination; the highest card determines the winner."@en .
+    owl:equivalentClass poker:Hand ;
+    rdfs:label "High Card"@en ;
+    rdfs:comment "A hand classified by its highest card."@en .
 
 # Definition of the Pair class.
 # A hand containing two cards of the same rank. owl:unionOf is used over the 13

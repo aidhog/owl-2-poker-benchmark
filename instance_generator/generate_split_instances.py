@@ -3,11 +3,12 @@ import argparse
 from pathlib import Path
 from poker_instance_generator import load_ontology, generate_hands, write_split
 
+DEFAULT_OUTPUT = Path(__file__).resolve().parent.parent / 'instances' / 'generated_instances' / 'split'
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('ontology', type=Path, help='Input deck ontology in Turtle format')
-    parser.add_argument('--output-dir', type=Path, default=Path('.'))
+    parser.add_argument('--output-dir', type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument('--hands-per-category', type=int, default=4)
     parser.add_argument('--seed', type=int, help='Optional reproducible random seed')
     parser.add_argument('--include-has-pair', action='store_true', help='Add handHasPair shortcut assertions')

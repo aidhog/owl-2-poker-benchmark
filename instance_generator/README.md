@@ -17,6 +17,8 @@ Both commands support `--hands-per-category N`, `--seed 42`, and `--include-has-
 
 ## Batch generation
 
+The following can be used to generate instances for each ontology recursively found in a given folder (e.g., after generating a benchmark of ontologies).
+
 ```bash
 python generate_batch_complete_instances.py --ontologies-dir path/to/ontologies --output-dir path/to/output
 python generate_batch_split_instances.py --ontologies-dir path/to/ontologies --output-dir path/to/output
@@ -26,7 +28,8 @@ Batch commands can include arguments for `--filter 'deck_6r_*'` (include only fi
 
 ## Notes
 
-- Rank order must be declared in the ontology through `owl:oneOf`.
+- By default, instances are written to the `instances/generated_instances` folder.
+- The rank order (e.g., for straights) is assumed to be the same ascending order as presented in the ontology's `owl:oneOf` enumeration of the ranks.
 - The standard five-card hand categories are used, with the royal flush distinguished from other straight flushes. The top five ranks in the declared rank order define a royal flush.
 - `--seed` makes a given invocation reproducible. To obtain the **same** random hands in complete and split outputs, run both with the same seed and input deck.
 - The generator does not assert a specific poker-hand category for each hand: the ontology's class axioms are intended to infer those categories.

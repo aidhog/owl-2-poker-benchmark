@@ -8,7 +8,7 @@ from poker_instance_generator import CATEGORIES, load_ontology, generate_hands, 
 def run(mode):
     parser = argparse.ArgumentParser(description=f'Batch generate {mode} poker instances.')
     parser.add_argument('--ontologies-dir', type=Path, default=Path(__file__).resolve().parent.parent / 'ontologies' / 'generated_ontologies')
-    parser.add_argument('--output-dir', type=Path, default=Path(__file__).resolve().parent / ('complete_instances' if mode == 'complete' else 'split_instances'))
+    parser.add_argument('--output-dir', type=Path, default=Path(__file__).resolve().parent / 'generated_instances' / mode)
     parser.add_argument('--filter', default='*.ttl', help='Filename glob, e.g. deck_6r_*')
     parser.add_argument('--force', action='store_true', help='Overwrite existing results')
     parser.add_argument('--dry-run', action='store_true', help='Show planned outputs only')

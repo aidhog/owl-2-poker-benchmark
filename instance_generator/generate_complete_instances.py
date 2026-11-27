@@ -3,6 +3,7 @@ import argparse
 from pathlib import Path
 from poker_instance_generator import load_ontology, generate_hands, write_complete
 
+DEFAULT_OUTPUT = Path(__file__).resolve().parent.parent / 'instances' / 'generated_instances' / 'complete'
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -14,7 +15,11 @@ def main():
     args = parser.parse_args()
     deck = load_ontology(args.ontology)
     hands = generate_hands(deck, args.hands_per_category, args.seed)
-    path = write_complete(hands, deck, args.output or Path(f'instances_{args.ontology.stem}.ttl'), args.include_has_pair)
+    path = write_complete(
+        hands, deck,
+        args.output or DEFAULT_OUTPUT / f'instances_{args.ontology.stem}.ttl',
+        args.include_has_pair
+    )
     print(f'Generated {sum(map(len, hands.values()))} hands: {path}')
 
 

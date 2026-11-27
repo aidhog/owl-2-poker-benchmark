@@ -223,7 +223,7 @@ def _make_graph(deck, categories, hands, include_has_pair, complete):
             graph.add((individual, RDFS.label, Literal(describe_hand(category, hand, deck), lang='en')))
             for card in hand:
                 graph.add((individual, deck.namespace.containsCard, deck.cards[card]))
-            if include_has_pair and category in ('two_pair', 'full_house'):
+            if include_has_pair:
                 counts = Counter(r for r, _ in hand)
                 paired = [r for r, count in counts.items() if count >= 2]
                 for rank in paired:

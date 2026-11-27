@@ -6,9 +6,10 @@ This repository contains OWL 2 DL ontologies and generators for evaluating reaso
 
 ## Repository structure
 
-- [`ontologies/base_ontology/`](ontologies/base_ontology/): base ontology for a standard 52-card deck.
+- [`ontologies/`](ontologies/base_ontology/): base ontology for a standard 52-card deck.
 - [`ontology_generator/`](ontology_generator/): Python generator for parameterized deck ontologies.
-- [`instances/`](instances/): Python generators for instances of hands that require classification.
+- [`instances/`](instances/): instances for the base ontology that require classification.
+- [`instance_generador_`](instance_generator/): Python generators for instances of hands that require classification.
 
 ## Requirements
 

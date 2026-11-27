@@ -36,7 +36,7 @@ The complete generator produces a combined set of hand instances. The split gene
 
 See the [module documentation](instances/) for details of the generated hand instances and for more options.
 
-> Note that the instance generator may fail if the requested number of instances for each hand type is not possible for that deck. For example, the number of possible distinct instances of Royal Flush is limited by the number of suits in the deck, the number of possible distinct instances of a Straight is four less than the number of ranks in the deck, etc.
+> Note that the instance generator may fail if the requested number of instances for each hand type is not possible for that deck. For example, the number of possible distinct instances of royal flush is limited by the number of suits in the deck.
 
 ## Citation
 

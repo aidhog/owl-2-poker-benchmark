@@ -13,7 +13,7 @@
 #     python generate_ontologies.py
 #
 # Main workflow:
-#     1. Request the deck name, suits, and ranks from the console.
+#     1. Request the deck name, suits, ranks, and shortcut preference from the console.
 #     2. Derive the base IRI and output filename from the deck name.
 #     3. Normalize user-provided names into valid OWL/Turtle identifiers.
 #     4. Determine which hand classifiers apply to the specified deck (based on its numbers of suits and ranks).
@@ -22,6 +22,7 @@
 # =============================================================================
 
 import re
+from itertools import combinations
 import sys
 import textwrap
 import unicodedata
@@ -318,19 +319,13 @@ poker:Hand a owl:Class ;
     rdfs:subClassOf [
         a owl:Restriction ;
         owl:onProperty poker:containsCard ;
-        owl:maxQualifiedCardinality "5"^^xsd:nonNegativeInteger ;
-        owl:onClass poker:Card
-    ] ;
-    rdfs:subClassOf [
-        a owl:Restriction ;
-        owl:onProperty poker:containsCard ;
-        owl:minQualifiedCardinality "5"^^xsd:nonNegativeInteger ;
+        owl:qualifiedCardinality "5"^^xsd:nonNegativeInteger ;
         owl:onClass poker:Card
     ] ;
     rdfs:label "Hand"@en ;
     rdfs:comment "A five-card hand formed from the deck."@en ."""
  
-def properties_section() -> str:
+def properties_section(include_has_pair: bool = False) -> str:
     """
     Declares the object and data properties used by cards, hands, and ranks.
  
@@ -338,9 +333,9 @@ def properties_section() -> str:
     suit and rank. Together with owl:oneOf on Suit and Rank,
     these axioms characterize the cards in the ontology.
  
-    handHasPair is an auxiliary property for the TwoPair classifier.
+    Optionally declares handHasPair for the Pair and TwoPair classifiers.
     """
-    return """
+    properties = """
  
 # =============================================================================
 # Object Properties
@@ -369,18 +364,23 @@ poker:containsCard a owl:ObjectProperty ;
     rdfs:range  poker:Card ;
     rdfs:label  "Contains Card"@en ;
     rdfs:comment "Relates a hand to each of its cards."@en .
- 
+"""
+    if include_has_pair:
+        properties += """
+
 # Definition of handHasPair.
-# handHasPair is an auxiliary property for the TwoPair classifier.
+# handHasPair is an auxiliary property for the Pair and TwoPair classifiers.
 # OWL 2 DL cannot directly count how many distinct ranks have cardinality at least two,
 # so this property is asserted manually in the ABox when instantiating a hand.
-# The TwoPair class definition explains this approach.
+# The Pair and TwoPair class definitions use this property.
 poker:handHasPair a owl:ObjectProperty ;
     rdfs:domain poker:Hand ;
     rdfs:range  poker:Rank ;
     rdfs:label  "Hand Has Pair"@en ;
-    rdfs:comment "Indicates ranks occurring at least twice in a hand. Asserted in the ABox for the TwoPair classifier."@en ."""
+    rdfs:comment "Indicates ranks occurring at least twice in a hand. Asserted in the ABox for the Pair and TwoPair classifiers."@en ."""
  
+    return properties
+
 def suit_individuals_section(suits: list[str]) -> str:
     """
     Creates ABox individuals for each suit in the deck.
@@ -560,45 +560,34 @@ def hand_capabilities(suits: list[str], ranks: list[str]) -> tuple[dict[str, boo
     return possible, {key: reasons[key] for key in possible if not possible[key]}
   
 def high_card_classifier() -> str:
-    """
-    Defines HighCard as a hand containing at least one card.
- 
-    This intentionally broad definition allows any hand to be classified
-    as HighCard, since the hand classes are not declared disjoint.
-    This is sufficient for the purposes of the ontology.
-    """
-    lines = [
-        "",
-        "# Definition of the class HighCard.",
-        "# Hand containing at least one card; any hand can satisfy HighCard",
-        "# because hand types are not declared disjoint.",
-        "# This broad definition is intentional.",
-        "poker:HighCard a owl:Class ;",
-        "    owl:equivalentClass [",
-        "        a owl:Class ;",
-        "        owl:intersectionOf (",
-        "            poker:Hand",
-        "            [",
-        "                a owl:Restriction ;",
-        "                owl:onProperty poker:containsCard ;",
-        "                owl:someValuesFrom poker:Card",
-        "            ]",
-        "        )",
-        "    ] ;",
-        "    rdfs:subClassOf poker:Hand ;",
-        '    rdfs:label "High Card"@en ;',
-        '    rdfs:comment "A hand classified by its highest card."@en .',
-    ]
-    return "\n".join(lines)
- 
-def pair_classifier(ranks: list[str]) -> str:
+    """Defines HighCard as equivalent to Hand (non-exclusive categories)."""
+    return """
+# Definition of the class HighCard.
+# Every hand is a HighCard because hand categories are non-exclusive.
+poker:HighCard a owl:Class ;
+    owl:equivalentClass poker:Hand ;
+    rdfs:label "High Card"@en ;
+    rdfs:comment "A hand classified by its highest card."@en ."""
+
+def pair_classifier(ranks: list[str], include_has_pair: bool = False) -> str:
     """
     Defines Pair as a hand with at least two cards of a shared rank.
  
-    An owl:unionOf over rank subclasses expresses the condition for
+    Without the shortcut, an owl:unionOf over rank subclasses expresses the condition for
     each rank. Generate this classifier only when the deck has
     at least two suits.
     """
+    if include_has_pair:
+        return """
+# Pair: at least one rank occurring twice or more, asserted in the ABox.
+poker:Pair a owl:Class ;
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        poker:Hand
+        [ a owl:Restriction ; owl:onProperty poker:handHasPair ;
+          owl:someValuesFrom poker:Rank ]
+    ) ] ;
+    rdfs:label "Pair"@en ;
+    rdfs:comment "A hand containing at least two cards of the same rank."@en ."""
     lines = [
         "",
         "# Definition of the class Pair.",
@@ -629,15 +618,34 @@ def pair_classifier(ranks: list[str]) -> str:
     return "\n".join(lines)
  
  
-def two_pair_classifier(ranks: list[str]) -> str:
+def two_pair_classifier(ranks: list[str], include_has_pair: bool = False) -> str:
     """
-    Defines TwoPair using the auxiliary handHasPair property.
+    Defines TwoPair by rank-pair enumeration or the optional handHasPair shortcut.
  
-    OWL 2 DL cannot directly count how many distinct ranks occur
-    at least twice. The property is therefore asserted in the ABox
-    when each hand is instantiated. The classifier requires
-    at least two distinct values for this property.
+    Without the shortcut, enumerate unordered pairs of distinct ranks.
+    With the shortcut, require at least two distinct handHasPair values.
     """
+    if not include_has_pair:
+        branches = []
+        for first, second in combinations(ranks, 2):
+            restrictions = "\n".join(
+                f'                    [ a owl:Restriction ; owl:onProperty poker:containsCard ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ; owl:onClass poker:CardOf{identifier(rank)} ]'
+                for rank in (first, second)
+            )
+            branches.append(f"                [ a owl:Class ; owl:intersectionOf (\n{restrictions}\n                ) ]")
+        body = "\n".join(branches)
+        return f"""
+# TwoPair: enumerate all unordered pairs of distinct ranks.
+poker:TwoPair a owl:Class ;
+    owl:equivalentClass [ a owl:Class ; owl:intersectionOf (
+        poker:Hand
+        [ a owl:Class ; owl:unionOf (
+{body}
+        ) ]
+    ) ] ;
+    rdfs:label "Two Pair"@en ;
+    rdfs:comment "A hand containing pairs of two distinct ranks."@en ."""
+
     lines = [
         "",
         "# Definition of the class TwoPair.",
@@ -907,6 +915,7 @@ def generate_ontology(
     base_iri: str,
     suits: list[str],
     ranks: list[str],
+    include_has_pair: bool = False,
 ) -> str:
     """
     Assembles the complete ontology in Turtle format.
@@ -931,9 +940,9 @@ def generate_ontology(
     if possible["high_card"]:
         parts.append(high_card_classifier())
     if possible["pair"]:
-        parts.append(pair_classifier(ranks))
+        parts.append(pair_classifier(ranks, include_has_pair))
     if possible["two_pair"]:
-        parts.append(two_pair_classifier(ranks))
+        parts.append(two_pair_classifier(ranks, include_has_pair))
     if possible["three_of_a_kind"]:
         parts.append(three_of_a_kind_classifier(ranks))
     if possible["straight"]:
@@ -950,7 +959,7 @@ def generate_ontology(
         parts.append(royal_flush_classifier(ranks))
  
     parts += [
-        properties_section(),
+        properties_section(include_has_pair),
         suit_individuals_section(suits),
         rank_individuals_section(ranks),
         card_individuals_section(suits, ranks),
@@ -977,12 +986,23 @@ def ask_list(prompt: str, example: str) -> list[str]:
     entry = input(f"{prompt} [e.g., {example}]: ").replace("\ufeff", "").strip()
     return [item.strip() for item in entry.split(",") if item.strip()]
  
+def ask_yes_no(prompt: str) -> bool:
+    """Read a yes/no answer, defaulting to no."""
+    while True:
+        answer = input(f"{prompt} [y/N]: ").strip().lower()
+        if answer in ("y", "yes"):
+            return True
+        if answer in ("", "n", "no"):
+            return False
+        print("Please enter yes or no.")
+
+
 def main() -> None:
     """
     Runs the interactive interface and writes the resulting Turtle file.
  
     The base IRI is derived automatically from the deck name.
-    The user supplies only the deck name, suits, and ranks.
+    The user supplies the deck name, suits, ranks, and shortcut preference.
     The output file is saved in ontologies/generated_ontologies/
     with a filename derived from the deck name.
     """
@@ -1021,7 +1041,8 @@ def main() -> None:
     print(f"  Cards  : {len(suits) * len(ranks)}")
     print()
  
-    ttl = generate_ontology(deck_name, base_iri, suits, ranks)
+    include_has_pair = ask_yes_no("Include the handHasPair shortcut?")
+    ttl = generate_ontology(deck_name, base_iri, suits, ranks, include_has_pair=include_has_pair)
  
     output_dir = Path(__file__).parent.parent / "ontologies" / "generated_ontologies"
     output_dir.mkdir(parents=True, exist_ok=True)

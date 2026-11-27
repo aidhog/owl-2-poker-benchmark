@@ -1,12 +1,14 @@
 """Generate the benchmark matrix of parameterized poker ontologies.
 
 By default, generate 24 ontologies for six rank counts and four suit counts.
+The handHasPair shortcut is disabled by default.
 Each Turtle file is placed in a directory named decks_<N>_ranks.
 
 Examples:
-    python generate_benchmark_ontologies.py
-    python generate_benchmark_ontologies.py --dry-run
-    python generate_benchmark_ontologies.py --ranks 13 19 --suits 4 8
+    python generate_benchmark.py
+    python generate_benchmark.py --include-has-pair
+    python generate_benchmark.py --dry-run
+    python generate_benchmark.py --ranks 13 19 --suits 4 8
 """
 
 import argparse
@@ -40,6 +42,8 @@ def parse_args() -> argparse.Namespace:
                         metavar="N", help="Numbers of suits (default: 4 8 12 16)")
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT,
                         help="Destination directory (default: ontologies/generated_ontologies)")
+    parser.add_argument("--include-has-pair", action="store_true",
+                        help="Include the handHasPair shortcut (default: disabled)")
     parser.add_argument("--dry-run", action="store_true",
                         help="List configurations without writing files")
     return parser.parse_args()
@@ -54,6 +58,7 @@ def main() -> int:
 
     total = len(args.ranks) * len(args.suits)
     print(f"\nConfigurations: {total} ({len(args.ranks)} rank groups × {len(args.suits)} suit groups)")
+    print(f"handHasPair shortcut: {'enabled' if args.include_has_pair else 'disabled'}")
     if args.dry_run:
         print("Dry run: no files will be written.")
     print()
@@ -75,7 +80,8 @@ def main() -> int:
 
             base_iri = f"http://www.poker-deck.org/{slug(deck_name)}"
             try:
-                turtle = generate_ontology(deck_name, base_iri, suits, ranks)
+                turtle = generate_ontology(deck_name, base_iri, suits, ranks,
+                                           include_has_pair=args.include_has_pair)
                 destination.mkdir(parents=True, exist_ok=True)
                 target = destination / f"{slug(deck_name)}.ttl"
                 target.write_text(turtle, encoding="utf-8")

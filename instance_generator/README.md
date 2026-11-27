@@ -15,14 +15,14 @@ Complete generation writes `instances_<deck>.ttl` (40 hands by default); split g
 
 Both commands support `--hands-per-category N`, `--seed 42`, and `--include-has-pair`. The last option adds `handHasPair` assertions for two-pair and full-house hands; it is **off by default**.
 
-## Batch generation (Python replacements for PowerShell)
+## Batch generation
 
 ```bash
 python generate_batch_complete_instances.py --ontologies-dir path/to/ontologies --output-dir path/to/output
 python generate_batch_split_instances.py --ontologies-dir path/to/ontologies --output-dir path/to/output
 ```
 
-Batch commands support `--filter 'deck_6r_*'`, `--dry-run`, `--force`, `--seed`, `--hands-per-category`, and `--include-has-pair`. They recursively discover `.ttl` files, preserve the original `instances_decks_<N>_ranks` output grouping, and skip complete existing outputs unless forced.
+Batch commands can include arguments for `--filter 'deck_6r_*'` (include only files with the given pattern, default `*.ttl`), `--dry-run` (preview the outputs, default disabled), `--force` (overwrite existing files, default disabled), `--seed` (an integer used for repeatible pseudorandom behaviour), `--hands-per-category` (how many instances for each type of hand, default `4`), and `--include-has-pair` (to include the shortcut that simplfies pairs, two-pair and, indirectly, full house). They recursively discover `.ttl` files for ontologies, preserve the original `instances_decks_<N>_ranks` output grouping, and skip complete existing outputs unless forced.
 
 ## Notes
 
@@ -30,3 +30,4 @@ Batch commands support `--filter 'deck_6r_*'`, `--dry-run`, `--force`, `--seed`,
 - The standard five-card hand categories are used, with the royal flush distinguished from other straight flushes. The top five ranks in the declared rank order define a royal flush.
 - `--seed` makes a given invocation reproducible. To obtain the **same** random hands in complete and split outputs, run both with the same seed and input deck.
 - The generator does not assert a specific poker-hand category for each hand: the ontology's class axioms are intended to infer those categories.
+- The generator makes thousands of attempts to pseudorandomly create at least the number of hands requested (all pairwise distinct). If it cannot create the required number of hands, it will throw a runtime error. This will often be due to request being impossible. For example, if a deck has three suits, and we request four instances of each hand type, this will fail for Royal Flush since the number of possible unique instances of this hand type is equal to the number of suits.
